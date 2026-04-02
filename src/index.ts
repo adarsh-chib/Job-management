@@ -5,6 +5,7 @@ import logger from "./configs/logger";
 import { errorHandler } from "./middleware/error.handler";
 import { requestLogger } from "./middleware/logger.middleware";
 import prisma from "./configs/prisma";
+import profileRouter from "./routes/profile.routes";
 
 const app = Express();
 app.use(Express.json());
@@ -15,6 +16,7 @@ app.use(requestLogger);
 const PORT = 3000;
 
 app.use("/api", userRouter)
+app.use("/api/profile", profileRouter)
 
 app.get("/", (req, res) => {
   res.status(200).json({

@@ -10,7 +10,7 @@
     "allowJs": true,
     "outDir": "build",
     "esModuleInterop": true,
-    "ignoreDeprecations": "5.0",
+    "ignoreDeprecations": "6.0",
     "forceConsistentCasingInFileNames": true,
     "noImplicitAny": false,
     "skipLibCheck": true
