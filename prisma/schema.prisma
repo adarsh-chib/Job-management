@@ -5,7 +5,8 @@ generator client {
 
 datasource db {
   provider = "mongodb"
-  url      = env("DATABASE_URL")
+
+  url = env("DATABASE_URL")
 }
 
 enum Role {
@@ -76,14 +77,24 @@ model Education {
   updatedAt DateTime @updatedAt
 }
 
+enum jobType {
+  remote
+  onsite
+  hybrid
+}
+
 model Job {
-  id          String  @id @default(auto()) @map("_id") @db.ObjectId
-  title       String
-  description String
-  company     String
-  location    String?
-  createdById String  @db.ObjectId
-  createdBy   User    @relation(fields: [createdById], references: [id])
+  id                 String   @id @default(auto()) @map("_id") @db.ObjectId
+  title              String
+  description        String
+  company            String
+  skillsRequired     String[] @default([])
+  experienceRequired String?
+  salary             String?
+  location           String?
+  jobType            jobType?
+  createdById        String   @db.ObjectId
+  createdBy          User     @relation(fields: [createdById], references: [id])
 
   applications JobApplication[]
 
