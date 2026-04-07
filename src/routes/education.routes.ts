@@ -1,6 +1,8 @@
 import Express from "express";
 import {
   createEducation,
+  deleteEducation,
+  getEducations,
   updateEducation,
 } from "../controller/education.controller";
 import { authenticationMiddleware } from "../middleware/auth.middleware";
@@ -25,5 +27,13 @@ educationRouter.patch(
   validate(updateEducationValidator),
   updateEducation,
 );
+
+educationRouter.delete(
+  "/delete/:educationId",
+  authenticationMiddleware,
+  deleteEducation,
+);
+
+educationRouter.get("/get", authenticationMiddleware, getEducations);
 
 export default educationRouter;
