@@ -6,15 +6,13 @@ export const createProfileValidator = z.object({
   headline: z.string().optional(),
   bio: z.string().optional(),
   location: z.string().optional(),
-  avatar: z.string().url("Invalid avatar URL").optional(),
-  
-  skills: z.array(z.string()).default([]), // Defaults to an empty list
-  
+  skills: z.array(z.string()).default([]),
   currentCompany: z.string().optional(),
   currentPosition: z.string().optional(),
   isOpenToWork: z.boolean().default(false),
-  
   githubUrl: z.string().url().optional(),
   portfolioUrl: z.string().url().optional(),
   linkedinUrl: z.string().url().optional(),
 });
+
+export const updatePRofileValidator = createProfileValidator.partial();

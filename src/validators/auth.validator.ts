@@ -19,7 +19,7 @@ export const signupValidator = z.object({
         .regex(/[0-9]/, "must contain at least one number")
         .regex(/[!@#$%^&*(),.?":{}|<>]/, "must contain at least one special character"),
 
-    role: z.string().refine((val) => ["user", "admin", "manager"].includes(val), {
+    role: z.string().refine((val) => ["candidate", "admin", "manager"].includes(val), {
         message: "role must be admin user or manager",
     }),
 });
@@ -38,7 +38,7 @@ export const signinValidator = z.object({
         .regex(/[0-9]/, "must contain at least one number")
         .regex(/[!@#$%^&*(),.?":{}|<>]/, "must contain at least one special character"),
 
-    role: z.string().refine((val) => ["user", "admin", "manager"].includes(val), {
+    role: z.string().refine((val) => ["candidate", "admin", "manager"].includes(val), {
         message: "role must be admin user or manager",
     }),
 });
