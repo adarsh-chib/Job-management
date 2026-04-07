@@ -50,23 +50,67 @@ export const updateProfileServices = async (
   });
 };
 
+export const deleteProfileServices = async (email: string, userID: string) => {
+  const user = await prisma.user.findUnique({
+    where: { email },
+  });
 
-export const deleteProfileServices = async(email : string,
-    userID : string
-)=>{
+  if (!user) {
+    throw new ApiError(404, "user not found");
+  }
 
-    const user = await prisma.user.findUnique({
-        where : {email}
-    });
+  await prisma.profile.delete({
+    where: {
+      userId: userID,
+    },
+  });
+};
 
-    if(!user){
-        throw new ApiError(404, "user not found")
-    }
-
-    await prisma.profile.delete({
-        where : {
-            userId : userID
+export const getAllProfilesService = async (
+  skip: number,
+  limit: number,
+  search?: string,
+) => {
+  const getProfile = await prisma.profile.findMany({
+    where: search
+      ? {
+          OR: [
+            { fullName: { contains: search, mode: "insensitive" } },
+            { username: { contains: search, mode: "insensitive" } },
+            { headline: { contains: search, mode: "insensitive" } },
+            { location: { contains: search, mode: "insensitive" } },
+            { currentCompany: { contains: search, mode: "insensitive" } },
+            { currentPosition: { contains: search, mode: "insensitive" } },
+            { skills: { has: search } },
+          ],
         }
-    })
+      : {},
 
-}
+    skip,
+    take: limit,
+    orderBy: {
+      createdAt: "desc", // means new profile will come at top
+    },
+    select: {
+      id: true,
+      fullName: true,
+      username: true,
+      headline: true,
+      bio: true,
+      location: true,
+      avatar: true,
+      skills: true,
+      currentCompany: true,
+      currentPosition: true,
+      user: {
+        select: {
+          id: true,
+          email: true,
+          role: true,
+        },
+      },
+    },
+  });
+
+  return getProfile;
+};

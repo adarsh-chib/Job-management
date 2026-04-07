@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from "express";
 import {
   createProfile,
   deleteProfileServices,
+  getAllProfilesService,
   updateProfileServices,
 } from "../services/profile.service";
 import { ApiResponse } from "../utils/api.response";
@@ -111,3 +112,27 @@ export const deleteProfile = async (
     next(error);
   }
 };
+
+
+export const getAllProfiles = async(
+  req : Request,
+  res : Response,
+  next: NextFunction,
+)=>{
+
+  const page = Number(req.query.page) || 1;
+  const limit = Number(req.query.limit) || 10;
+  const search =
+    typeof req.query.search === "string" ? req.query.search.trim() : undefined;
+
+  const skip = (page - 1) * limit;
+  try {
+  const profiles = await getAllProfilesService(skip, limit, search);
+
+  res.status(200).json(new ApiResponse (200, "all profiles fetched successfully", profiles));
+}
+
+catch(err){
+  next(err)
+}
+}
