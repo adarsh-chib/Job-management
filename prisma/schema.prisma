@@ -23,8 +23,10 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  Profile    Profile?
-  educations Education[]
+  Profile         Profile?
+  educations      Education[]
+  jobs            Job[]
+  jobApplications JobApplication[]
 }
 
 model Profile {
@@ -52,11 +54,14 @@ model Profile {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@index([fullName])
+  @@index([createdAt])
 }
 
 model Education {
   id     String @id @default(auto()) @map("_id") @db.ObjectId
-  userId String   @db.ObjectId
+  userId String @db.ObjectId
   user   User   @relation(fields: [userId], references: [id])
 
   schoolName   String
@@ -69,4 +74,41 @@ model Education {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+model Job {
+  id          String  @id @default(auto()) @map("_id") @db.ObjectId
+  title       String
+  description String
+  company     String
+  location    String?
+  createdById String  @db.ObjectId
+  createdBy   User    @relation(fields: [createdById], references: [id])
+
+  applications JobApplication[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+enum ApplicationStatus {
+  applied
+  shortlisted
+  rejected
+}
+
+model JobApplication {
+  id          String @id @default(auto()) @map("_id") @db.ObjectId
+  jobId       String @db.ObjectId
+  candidateId String @db.ObjectId
+
+  job       Job  @relation(fields: [jobId], references: [id])
+  candidate User @relation(fields: [candidateId], references: [id])
+
+  status ApplicationStatus @default(applied)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([jobId, candidateId])
 }

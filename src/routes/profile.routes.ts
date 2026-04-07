@@ -2,9 +2,13 @@ import { NextFunction, Request, Response, Router } from "express";
 import {
   createProfileController,
   deleteProfile,
+  getAllProfiles,
   updateProfile,
 } from "../controller/profile.controller";
-import { authenticationMiddleware } from "../middleware/auth.middleware";
+import {
+  authenticationMiddleware,
+  authorizationMiddleware,
+} from "../middleware/auth.middleware";
 import { validate } from "../middleware/validation.middleware";
 import {
   createProfileValidator,
@@ -52,5 +56,12 @@ profileRouter.patch(
 );
 
 profileRouter.delete("/delete/:email", authenticationMiddleware, deleteProfile);
+
+profileRouter.get(
+  "/profiles",
+  authenticationMiddleware,
+  authorizationMiddleware("admin"),
+  getAllProfiles,
+);
 
 export default profileRouter;

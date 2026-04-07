@@ -28,7 +28,18 @@ export const authenticationMiddleware = (
   }
 };
 
+type Role = "admin" | "manager" | "candidate";
 
+export const authorizationMiddleware = (...allowedRoles: Role[]) => {
+  return (req: Request, res: Response, next: NextFunction) => {
+    if (!req.user) {
+      return next(new ApiError(401, "unauthorized"));
+    }
 
+    if (!allowedRoles.includes(req.user.role)) {
+      return next(new ApiError(403, "forbidden: access denied"));
+    }
 
-
+    next();
+  };
+};

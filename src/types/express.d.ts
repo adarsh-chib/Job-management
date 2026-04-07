@@ -4,7 +4,8 @@ export interface IUserPayload extends JwtPayload
 {
   id: string;
   email: string;
-  role: "user" | "admin" | "manager";
+  role: "candidate" | "admin" | "manager";
+
 }
 
 declare global {
