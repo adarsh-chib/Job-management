@@ -1,14 +1,33 @@
 import z from "zod";
 
-export const createEducationValidator = z.object({
-  schoolName: z.string().min(2, "School name is required"),
-  degree: z.string().min(2, "Degree is required"),
-  fieldOfStudy: z.string().optional(),
-  startDate: z.coerce.date(),
-  endDate: z.coerce.date().optional(),
-  grade: z.string().optional(),
-  description: z.string().optional(),
-});
+const educationSchema = z
+  .object({
+    institutionName: z.string().trim().min(2, "Institution name is required"),
+    qualification: z.string().trim().min(2, "Qualification is required"),
+    fieldOfStudy: z.string().trim().optional(),
+    startDate: z.coerce.date(),
+    endDate: z.coerce.date().optional(),
+    grade: z.string().trim().optional(),
+    description: z.string().trim().optional(),
+  });
 
-export const updateEducationValidator = createEducationValidator.partial();
+export const createEducationValidator = z.array(educationSchema);
 
+export const updateEducationValidator = z
+  .object({
+    institutionName: z
+      .string()
+      .trim()
+      .min(2, "Institution name is required")
+      .optional(),
+    qualification: z
+      .string()
+      .trim()
+      .min(2, "Qualification is required")
+      .optional(),
+    fieldOfStudy: z.string().trim().optional(),
+    startDate: z.coerce.date().optional(),
+    endDate: z.coerce.date().optional(),
+    grade: z.string().trim().optional(),
+    description: z.string().trim().optional(),
+  });

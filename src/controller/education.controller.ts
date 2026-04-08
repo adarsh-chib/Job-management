@@ -3,11 +3,21 @@ import { ApiError } from "../utils/api.error";
 import {
   createEducationServices,
   deleteEducationServices,
-  getEducationsService,
   updateEducationServices,
 } from "../services/education.service";
 import { ApiResponse } from "../utils/api.response";
 import logger from "../configs/logger";
+import prisma from "../configs/prisma";
+
+type EducationInput = {
+  institutionName: string;
+  qualification: string;
+  fieldOfStudy?: string;
+  startDate: Date;
+  endDate?: Date;
+  grade?: string;
+  description?: string;
+};
 
 export const createEducation = async (
   req: Request,
@@ -21,7 +31,22 @@ export const createEducation = async (
       throw new ApiError(404, "user not found");
     }
 
-    const educationData = { ...req.body, userId };
+    const profile = await prisma.profile.findUnique({
+      where: { userId },
+    });
+
+    if (!profile) {
+      throw new ApiError(404, "profile not found");
+    }
+
+    const educationData = req.body.map((education: EducationInput) => ({
+      ...education,
+      profile: {
+        connect: {
+          id: profile.id,
+        },
+      },
+    }));
 
     const educationCreate = await createEducationServices(educationData);
 
@@ -49,7 +74,6 @@ export const updateEducation = async (
     if (!userId) {
       throw new ApiError(404, "user not found");
     }
-
     const educationId = req.params.educationId;
 
     if (!educationId) {
@@ -76,15 +100,17 @@ export const deleteEducation = async (
   res: Response,
   next: NextFunction,
 ) => {
-  const userId = req.user?.id;
-  if (!userId) {
-    throw new ApiError(404, "user not found");
-  }
-  const educationId = req.params.educationId;
-  if (!educationId) {
-    throw new ApiError(400, "education id is required");
-  }
   try {
+    const userId = req.user?.id;
+    if (!userId) {
+      throw new ApiError(404, "user not found");
+    }
+
+    const educationId = req.params.educationId;
+    if (!educationId) {
+      throw new ApiError(400, "education id is required");
+    }
+
     const deletedData = await deleteEducationServices(educationId, userId);
 
     logger.info("education data deleted", {
@@ -101,18 +127,3 @@ export const deleteEducation = async (
   }
 };
 
-
-export const getEducations = async(
-  req : Request,
-  res : Response,
-  next : NextFunction,
-)=>{
-  try{
-    const allEducationsData = await getEducationsService()
-
-    res.status(200).json(new ApiResponse(200, "all data fetched successfully", allEducationsData));
-  }
-  catch(err){
-    next(err);
-  }
-}
