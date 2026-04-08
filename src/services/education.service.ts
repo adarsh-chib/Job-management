@@ -1,39 +1,37 @@
 import prisma from "../configs/prisma";
 import { ApiError } from "../utils/api.error";
 
-export const createEducationServices = async (data: {
-  userId: string;
-  schoolName: string;
-  degree: string;
+type CreateEducationInput = {
+  institutionName: string;
+  qualification: string;
   fieldOfStudy?: string;
   startDate: Date;
   endDate?: Date;
   grade?: string;
   description?: string;
-}) => {
-  const existingEducation = await prisma.education.findFirst({
-    where: {
-      userId: data.userId,
-    },
-  });
+  profile: {
+    connect: {
+      id: string;
+    };
+  };
+};
 
-  if (existingEducation) {
-    throw new ApiError(409, "education already exists for this user");
-  }
-
-  return await prisma.education.create({
-    data: {
-      ...data,
-    },
-  });
+export const createEducationServices = async (data: CreateEducationInput[]) => {
+  return await Promise.all(
+    data.map((education: CreateEducationInput) =>
+      prisma.education.create({
+        data: education,
+      }),
+    ),
+  );
 };
 
 export const updateEducationServices = async (
   educationId: string,
   userId: string,
   data: {
-    schoolName?: string;
-    degree?: string;
+    institutionName?: string;
+    qualification?: string;
     fieldOfStudy?: string;
     startDate?: Date;
     endDate?: Date;
@@ -41,13 +39,19 @@ export const updateEducationServices = async (
     description?: string;
   },
 ) => {
+  const profile = await prisma.profile.findUnique({
+    where: { userId },
+  });
+  if (!profile) {
+    throw new ApiError(404, "profile not found");
+  }
+
   const existingEducation = await prisma.education.findFirst({
     where: {
       id: educationId,
-      userId,
+      profileId: profile.id,
     },
   });
-
   if (!existingEducation) {
     throw new ApiError(404, "education id does not exist");
   }
@@ -64,29 +68,30 @@ export const deleteEducationServices = async (
   educationId: string,
   userId: string,
 ) => {
-  const existingeducation = await prisma.education.findFirst({
+  const profile = await prisma.profile.findUnique({
     where: {
-      id: educationId,
       userId,
     },
   });
 
-  if (!existingeducation) {
+  if (!profile) {
+    throw new ApiError(400, "profile does not exists");
+  }
+
+  const existingEducation = await prisma.education.findFirst({
+    where: {
+      id: educationId,
+      profileId: profile.id,
+    },
+  });
+
+  if (!existingEducation) {
     throw new ApiError(404, "education id does not exist");
   }
+
   return await prisma.education.delete({
     where: {
       id: educationId,
-    },
-  });
-};
-
-
-
-export const getEducationsService = async () => {
-  return await prisma.education.findMany({
-    orderBy: {
-      startDate: "desc",
     },
   });
 };

@@ -102,11 +102,13 @@ export const getAllProfilesService = async (
       skills: true,
       currentCompany: true,
       currentPosition: true,
-      user: {
+      educations: {
         select: {
           id: true,
-          email: true,
-          role: true,
+          institutionName: true,
+          qualification: true,
+          fieldOfStudy: true,
+          grade : true,
         },
       },
     },

@@ -24,10 +24,7 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  Profile         Profile?
-  educations      Education[]
-  jobs            Job[]
-  jobApplications JobApplication[]
+  Profile Profile?
 }
 
 model Profile {
@@ -56,25 +53,49 @@ model Profile {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  educations Education[]
+  experince  Experince[]
+
   @@index([fullName])
   @@index([createdAt])
 }
 
 model Education {
-  id     String @id @default(auto()) @map("_id") @db.ObjectId
-  userId String @db.ObjectId
-  user   User   @relation(fields: [userId], references: [id])
+  id String @id @default(auto()) @map("_id") @db.ObjectId
 
-  schoolName   String
-  degree       String
-  fieldOfStudy String?
-  startDate    DateTime
-  endDate      DateTime?
-  grade        String?
-  description  String?
+  institutionName String
+  qualification   String
+  fieldOfStudy    String?
+  grade           String?
+  startDate       DateTime
+  endDate         DateTime?
+  description     String?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  profile   Profile? @relation(fields: [profileId], references: [id])
+  profileId String?  @db.ObjectId
+}
+
+model Experince {
+  id String @id @default(auto()) @map("_id") @db.ObjectId
+
+  companyName    String
+  jobTitle       String
+  employmentType String?
+  location       String?
+  locationType   String?
+  startDate      DateTime
+  endDate        DateTime?
+  isCurrent      Boolean   @default(false)
+  description    String?
+  skills         String[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  profile   Profile? @relation(fields: [profileId], references: [id])
+  profileId String?  @db.ObjectId
 }
 
 enum jobType {
@@ -94,7 +115,6 @@ model Job {
   location           String?
   jobType            jobType?
   createdById        String   @db.ObjectId
-  createdBy          User     @relation(fields: [createdById], references: [id])
 
   applications JobApplication[]
 
@@ -113,13 +133,11 @@ model JobApplication {
   jobId       String @db.ObjectId
   candidateId String @db.ObjectId
 
-  job       Job  @relation(fields: [jobId], references: [id])
-  candidate User @relation(fields: [candidateId], references: [id])
-
   status ApplicationStatus @default(applied)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  job       Job      @relation(fields: [jobId], references: [id])
 
   @@unique([jobId, candidateId])
 }

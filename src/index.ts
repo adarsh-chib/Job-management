@@ -8,6 +8,7 @@ import prisma from "./configs/prisma";
 import profileRouter from "./routes/profile.routes";
 import educationRouter from "./routes/education.routes";
 import jobRouter from "./routes/job.routes";
+import experienceRouter from "./routes/experience.route";
 
 const app = Express();
 app.use(Express.json());
@@ -20,6 +21,7 @@ const PORT = 3000;
 app.use("/api", userRouter);
 app.use("/api/profile", profileRouter);
 app.use("/api/education", educationRouter);
+app.use("/api/experience",experienceRouter);
 app.use("/api/job",jobRouter);
 
 app.get("/", (req, res) => {
