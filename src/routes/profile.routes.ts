@@ -5,6 +5,7 @@ import {
   getAllProfiles,
   getMyProfile,
   updateProfile,
+  upsertProfile,
 } from "../controller/profile.controller";
 import {
   authenticationMiddleware,
@@ -66,5 +67,12 @@ profileRouter.get(
 );
 
 profileRouter.get("/profile", authenticationMiddleware, getMyProfile);
+
+profileRouter.put(
+  "/upsert",
+  authenticationMiddleware,
+  validate(updatePRofileValidator),
+  upsertProfile,
+);
 
 export default profileRouter;

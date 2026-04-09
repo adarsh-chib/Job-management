@@ -5,11 +5,11 @@ import {
   getAllProfilesService,
   getMyProfileService,
   updateProfileServices,
+  upsertProfileServices,
 } from "../services/profile.service";
 import { ApiResponse } from "../utils/api.response";
 import { ApiError } from "../utils/api.error";
 import { uploadBufferToCloudinary } from "../utils/cloudinary-upload";
-import { tr } from "zod/v4/locales";
 
 export const createProfileController = async (
   req: Request,
@@ -152,6 +152,27 @@ export const getMyProfile = async (
       .json(
         new ApiResponse(200, "data has been fetched successfully", getProfile),
       );
+  } catch (err) {
+    next(err);
+  }
+};
+
+export const upsertProfile = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  const userId = req.user?.id;
+  const data = req.body;
+
+  if (!userId) {
+    throw new ApiError(404, "user not found");
+  }
+
+  try {
+    const upsertProfile = await upsertProfileServices(userId, data);
+
+    res.status(200).json(new ApiResponse(200, "ok", upsertProfile));
   } catch (err) {
     next(err);
   }

@@ -20,3 +20,22 @@ export const validate =
       next(error);
     }
   };
+
+export const validateParams =
+  (schema: z.ZodTypeAny) =>
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const parsedParams = await schema.parseAsync(req.params);
+      req.params = parsedParams as Request["params"];
+      next();
+    } catch (error) {
+      if (error instanceof ZodError) {
+        return res.status(400).json({
+          status: 400,
+          message: "validation failed",
+          errors: error.issues,
+        });
+      }
+      next(error);
+    }
+  };
