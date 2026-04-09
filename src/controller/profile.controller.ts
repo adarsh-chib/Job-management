@@ -3,11 +3,13 @@ import {
   createProfile,
   deleteProfileServices,
   getAllProfilesService,
+  getMyProfileService,
   updateProfileServices,
 } from "../services/profile.service";
 import { ApiResponse } from "../utils/api.response";
 import { ApiError } from "../utils/api.error";
 import { uploadBufferToCloudinary } from "../utils/cloudinary-upload";
+import { tr } from "zod/v4/locales";
 
 export const createProfileController = async (
   req: Request,
@@ -86,40 +88,32 @@ export const updateProfile = async (
 };
 
 export const deleteProfile = async (
-  req: Request<{ email: string }>,
+  req: Request,
   res: Response,
   next: NextFunction,
 ) => {
   try {
-    const email = req.params.email;
-
-    if (!email) {
-      throw new ApiError(400, "Email is required");
-    }
-
     const userId = req.user?.id;
 
     if (!userId) {
       throw new ApiError(404, "User not found");
     }
 
-    await deleteProfileServices(email, userId);
+    await deleteProfileServices(userId);
 
     return res
       .status(200)
-      .json(new ApiResponse(200, "Profile deleted successfully", email));
+      .json(new ApiResponse(200, "Profile deleted successfully", null));
   } catch (error) {
     next(error);
   }
 };
 
-
-export const getAllProfiles = async(
-  req : Request,
-  res : Response,
+export const getAllProfiles = async (
+  req: Request,
+  res: Response,
   next: NextFunction,
-)=>{
-
+) => {
   const page = Number(req.query.page) || 1;
   const limit = Number(req.query.limit) || 10;
   const search =
@@ -127,12 +121,38 @@ export const getAllProfiles = async(
 
   const skip = (page - 1) * limit;
   try {
-  const profiles = await getAllProfilesService(skip, limit, search);
+    const profiles = await getAllProfilesService(skip, limit, search);
 
-  res.status(200).json(new ApiResponse (200, "all profiles fetched successfully", profiles));
-}
+    res
+      .status(200)
+      .json(
+        new ApiResponse(200, "all profiles fetched successfully", profiles),
+      );
+  } catch (err) {
+    next(err);
+  }
+};
 
-catch(err){
-  next(err)
-}
-}
+export const getMyProfile = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  const userId = req.user?.id;
+
+  if (!userId) {
+    throw new ApiError(404, "user not found");
+  }
+
+  try {
+    const getProfile = await getMyProfileService(userId);
+
+    res
+      .status(200)
+      .json(
+        new ApiResponse(200, "data has been fetched successfully", getProfile),
+      );
+  } catch (err) {
+    next(err);
+  }
+};

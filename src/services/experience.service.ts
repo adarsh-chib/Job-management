@@ -1,7 +1,6 @@
 import prisma from "../configs/prisma";
 
-export const createExperienceServices = async (data: {
-  profileId: string;
+type CreateExperienceInput = {
   companyName: string;
   jobTitle: string;
   employmentType?: string;
@@ -12,10 +11,21 @@ export const createExperienceServices = async (data: {
   isCurrent?: boolean;
   description?: string;
   skills: string[];
-}) => {
-  return await prisma.experince.create({
-    data: {
-      ...data,
-    },
-  });
+  profile: {
+    connect: {
+      id: string;
+    };
+  };
+};
+
+export const createExperienceServices = async (
+  data: CreateExperienceInput[],
+) => {
+  return await Promise.all(
+    data.map((experience: CreateExperienceInput) =>
+      prisma.experince.create({
+        data: experience,
+      }),
+    ),
+  );
 };

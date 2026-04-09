@@ -50,20 +50,26 @@ export const updateProfileServices = async (
   });
 };
 
-export const deleteProfileServices = async (email: string, userID: string) => {
-  const user = await prisma.user.findUnique({
-    where: { email },
+export const deleteProfileServices = async (userId: string) => {
+  const profile = await prisma.profile.findUnique({
+    where: { userId },
   });
 
-  if (!user) {
-    throw new ApiError(404, "user not found");
+  if (!profile) {
+    throw new ApiError(404, "profile not found");
   }
 
-  await prisma.profile.delete({
-    where: {
-      userId: userID,
-    },
-  });
+  await prisma.$transaction([
+    prisma.education.deleteMany({
+      where: { profileId: profile.id },
+    }),
+    prisma.experince.deleteMany({
+      where: { profileId: profile.id },
+    }),
+    prisma.profile.delete({
+      where: { userId },
+    }),
+  ]);
 };
 
 export const getAllProfilesService = async (
@@ -108,11 +114,44 @@ export const getAllProfilesService = async (
           institutionName: true,
           qualification: true,
           fieldOfStudy: true,
-          grade : true,
+          grade: true,
         },
       },
     },
   });
 
   return getProfile;
+};
+
+
+
+export const getMyProfileService = async(userId : string) =>{
+ const profile = await prisma.profile.findUnique({
+  where: { userId },
+  select: {
+    id: true,
+    fullName: true,
+    username: true,
+    headline: true,
+    bio: true,
+    location: true,
+    avatar: true,
+    educations: {
+      select: {
+        id: true,
+        institutionName: true,
+        qualification: true,
+        fieldOfStudy: true,
+        startDate: true,
+        endDate: true,
+        grade: true,
+      },
+    },
+  },
+});
+if (!profile) {
+    throw new ApiError(404, "profile not found");
+  }
+
+  return profile;
 };
