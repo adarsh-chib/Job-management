@@ -1,3 +1,4 @@
+import { connect } from "node:http2";
 import prisma from "../configs/prisma";
 import { ApiError } from "../utils/api.error";
 
@@ -123,35 +124,67 @@ export const getAllProfilesService = async (
   return getProfile;
 };
 
-
-
-export const getMyProfileService = async(userId : string) =>{
- const profile = await prisma.profile.findUnique({
-  where: { userId },
-  select: {
-    id: true,
-    fullName: true,
-    username: true,
-    headline: true,
-    bio: true,
-    location: true,
-    avatar: true,
-    educations: {
-      select: {
-        id: true,
-        institutionName: true,
-        qualification: true,
-        fieldOfStudy: true,
-        startDate: true,
-        endDate: true,
-        grade: true,
+export const getMyProfileService = async (userId: string) => {
+  const profile = await prisma.profile.findUnique({
+    where: { userId },
+    select: {
+      id: true,
+      fullName: true,
+      username: true,
+      headline: true,
+      bio: true,
+      location: true,
+      avatar: true,
+      educations: {
+        select: {
+          id: true,
+          institutionName: true,
+          qualification: true,
+          fieldOfStudy: true,
+          startDate: true,
+          endDate: true,
+          grade: true,
+        },
       },
     },
-  },
-});
-if (!profile) {
+  });
+  if (!profile) {
     throw new ApiError(404, "profile not found");
   }
 
   return profile;
+};
+
+export const upsertProfileServices = async (
+  userId: string,
+  data: {
+    fullName: string;
+    username: string;
+    headline?: string;
+    bio?: string;
+    location?: string;
+    avatar?: string;
+    skills: string[];
+    currentCompany?: string;
+    currentPosition?: string;
+    isOpenToWork: boolean;
+    githubUrl?: string;
+    portfolioUrl?: string;
+    linkedinUrl?: string;
+  },
+) => {
+  return await prisma.profile.upsert({
+    where: { userId },
+    update: {
+      ...data,
+    },
+    create: {
+      ...data,
+      user: {
+        connect: {
+          id: userId,
+        },
+      },
+    },
+  });
 };
