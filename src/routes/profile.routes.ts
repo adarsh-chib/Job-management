@@ -3,6 +3,7 @@ import {
   createProfileController,
   deleteProfile,
   getAllProfiles,
+  getMyProfile,
   updateProfile,
 } from "../controller/profile.controller";
 import {
@@ -55,7 +56,7 @@ profileRouter.patch(
   updateProfile,
 );
 
-profileRouter.delete("/delete/:email", authenticationMiddleware, deleteProfile);
+profileRouter.delete("/delete", authenticationMiddleware, deleteProfile);
 
 profileRouter.get(
   "/profiles",
@@ -63,5 +64,7 @@ profileRouter.get(
   authorizationMiddleware("admin"),
   getAllProfiles,
 );
+
+profileRouter.get("/profile", authenticationMiddleware, getMyProfile);
 
 export default profileRouter;
