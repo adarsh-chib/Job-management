@@ -15,6 +15,11 @@ enum Role {
   candidate
 }
 
+enum PostedByType {
+  company
+  freelancer
+}
+
 model User {
   id        String   @id @default(auto()) @map("_id") @db.ObjectId
   fullName  String
@@ -45,6 +50,9 @@ model Profile {
   currentCompany  String?
   currentPosition String?
   isOpenToWork    Boolean @default(false)
+  companyName     String?
+  designation     String?
+  postedByType    PostedByType?
 
   githubUrl    String?
   portfolioUrl String?
