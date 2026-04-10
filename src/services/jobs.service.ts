@@ -175,3 +175,60 @@ export const deleteJobService = async (jobId: string, requesterId: string) => {
     where: { id: jobId },
   });
 };
+
+
+type SearchJobsFilters = {
+  title?: string;
+  location?: string;
+  company?: string;
+  jobType?: jobType;
+};
+
+export const searchJobsService = async (filters: SearchJobsFilters) => {
+  return prisma.job.findMany({
+    where: {
+      ...(filters.title && {
+        title: { contains: filters.title, mode: "insensitive" },
+      }),
+      ...(filters.location && {
+        location: { contains: filters.location, mode: "insensitive" },
+      }),
+      ...(filters.company && {
+        company: { contains: filters.company, mode: "insensitive" },
+      }),
+      ...(filters.jobType && {
+        jobType: filters.jobType,
+      }),
+    },
+    orderBy: {
+      createdAt: "desc",
+    },
+  });
+};
+
+export const getMyJobsService = async (
+  userId: string,
+  filters: SearchJobsFilters,
+) => {
+  return prisma.job.findMany({
+    where: {
+      createdById: userId,
+      ...(filters.title && {
+        title: { contains: filters.title, mode: "insensitive" },
+      }),
+      ...(filters.location && {
+        location: { contains: filters.location, mode: "insensitive" },
+      }),
+      ...(filters.company && {
+        company: { contains: filters.company, mode: "insensitive" },
+      }),
+      ...(filters.jobType && {
+        jobType: filters.jobType,
+      }),
+    },
+    orderBy: {
+      createdAt: "desc",
+    },
+  });
+};
+

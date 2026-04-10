@@ -7,13 +7,12 @@ import {
   deleteJob,
   getAllJobs,
   getJobById,
+  getMyJobs,
   jobsCreate,
+  searchJobs,
   updateJob,
 } from "../controller/jobs.controller";
-import {
-  validate,
-  validateParams,
-} from "../middleware/validation.middleware";
+import { validate, validateParams } from "../middleware/validation.middleware";
 import {
   createJobValidator,
   jobIdParamValidator,
@@ -23,6 +22,15 @@ import {
 const jobRouter = Express.Router();
 
 jobRouter.get("/all", authenticationMiddleware, getAllJobs);
+
+jobRouter.get("/search", authenticationMiddleware, searchJobs);
+
+jobRouter.get(
+  "/my-jobs",
+  authenticationMiddleware,
+  authorizationMiddleware("admin", "manager"),
+  getMyJobs,
+);
 
 jobRouter.get(
   "/:jobId",

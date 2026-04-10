@@ -44,12 +44,13 @@ model Profile {
   bio      String?
   location String?
   avatar   String?
+  resume   String?
 
   skills String[]
 
   currentCompany  String?
   currentPosition String?
-  isOpenToWork    Boolean @default(false)
+  isOpenToWork    Boolean       @default(false)
   companyName     String?
   designation     String?
   postedByType    PostedByType?
@@ -113,21 +114,29 @@ enum jobType {
 }
 
 model Job {
-  id                 String   @id @default(auto()) @map("_id") @db.ObjectId
-  title              String
-  description        String
-  company            String
-  skillsRequired     String[] @default([])
-  experienceRequired String?
-  salary             String?
-  location           String?
-  jobType            jobType?
-  createdById        String   @db.ObjectId
+  id String @id @default(auto()) @map("_id") @db.ObjectId
+
+  title       String
+  description String
+  company     String
+
+  skillsRequired String[] @default([])
+
+  experienceMin Int? // NEW
+  experienceMax Int? // NEW
+
+  salaryMin Int? // NEW
+  salaryMax Int? // NEW
+
+  location String?
+
+  jobType jobType?
+
+  createdAt DateTime @default(now()) // NEW
+
+  createdById String @db.ObjectId
 
   applications JobApplication[]
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
 }
 
 enum ApplicationStatus {

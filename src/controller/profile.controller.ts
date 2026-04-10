@@ -1,18 +1,32 @@
 import { Request, Response, NextFunction } from "express";
 import {
-  createProfile,
   deleteProfileServices,
   getAllProfilesService,
   getMyProfileService,
   updateProfileWithRelationsService,
   updateProfileServices,
   upsertProfileServices,
+  createProfileService,
 } from "../services/profile.service";
 import { ApiResponse } from "../utils/api.response";
 import { ApiError } from "../utils/api.error";
 import { uploadBufferToCloudinary } from "../utils/cloudinary-upload";
 
-export const createProfileController = async (
+const getUploadedFiles = (req: Request) => {
+  if (!req.files || Array.isArray(req.files)) {
+    return {
+      avatarFile: undefined,
+      resumeFile: undefined,
+    };
+  }
+
+  return {
+    avatarFile: req.files.avatar?.[0],
+    resumeFile: req.files.resume?.[0],
+  };
+};
+
+export const createProfile = async (
   req: Request,
   res: Response,
   next: NextFunction,
@@ -24,10 +38,12 @@ export const createProfileController = async (
       throw new ApiError(401, "User not authenticated");
     }
 
+    const { avatarFile, resumeFile } = getUploadedFiles(req);
     let avatar: string | undefined;
+    let resume: string | undefined;
 
-    if (req.file) {
-      const uploadedImage = await uploadBufferToCloudinary(req.file.buffer, {
+    if (avatarFile) {
+      const uploadedImage = await uploadBufferToCloudinary(avatarFile.buffer, {
         folder: "profile-images",
         resource_type: "image",
       });
@@ -35,13 +51,23 @@ export const createProfileController = async (
       avatar = uploadedImage.secure_url;
     }
 
+    if (resumeFile) {
+      const uploadedResume = await uploadBufferToCloudinary(resumeFile.buffer, {
+        folder: "profile-resumes",
+        resource_type: "raw",
+      });
+
+      resume = uploadedResume.secure_url;
+    }
+
     const profileData = {
       ...req.body,
       userId,
       ...(avatar && { avatar }),
+      ...(resume && { resume }),
     };
 
-    const newProfile = await createProfile(profileData);
+    const newProfile = await createProfileService(profileData);
 
     return res
       .status(201)
@@ -67,13 +93,24 @@ export const updateProfile = async (
       ...req.body,
     };
 
-    if (req.file) {
-      const uploadedImage = await uploadBufferToCloudinary(req.file.buffer, {
+    const { avatarFile, resumeFile } = getUploadedFiles(req);
+
+    if (avatarFile) {
+      const uploadedImage = await uploadBufferToCloudinary(avatarFile.buffer, {
         folder: "profile-images",
         resource_type: "image",
       });
 
       updateData.avatar = uploadedImage.secure_url;
+    }
+
+    if (resumeFile) {
+      const uploadedResume = await uploadBufferToCloudinary(resumeFile.buffer, {
+        folder: "profile-resumes",
+        resource_type: "raw",
+      });
+
+      updateData.resume = uploadedResume.secure_url;
     }
 
     const updatedProfile = await updateProfileServices(userId, updateData);
@@ -196,13 +233,15 @@ export const updateProfileWithRelations = async (
       req.body,
     );
 
-    return res.status(200).json(
-      new ApiResponse(
-        200,
-        "Profile, education and experience updated successfully",
-        updatedProfile,
-      ),
-    );
+    return res
+      .status(200)
+      .json(
+        new ApiResponse(
+          200,
+          "Profile, education and experience updated successfully",
+          updatedProfile,
+        ),
+      );
   } catch (error) {
     next(error);
   }
