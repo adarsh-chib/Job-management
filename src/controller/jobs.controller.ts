@@ -1,10 +1,13 @@
 import { Request, Response, NextFunction } from "express";
+import { jobType } from "../../generated/prisma";
 import { ApiError } from "../utils/api.error";
 import {
   deleteJobService,
   getAllJobsService,
   getJobByIdService,
+  getMyJobsService,
   jobCreateService,
+  searchJobsService,
   updateJobService,
 } from "../services/jobs.service";
 import { ApiResponse } from "../utils/api.response";
@@ -120,6 +123,74 @@ export const deleteJob = async (
     res
       .status(200)
       .json(new ApiResponse(200, "job deleted successfully", deletedJob));
+  } catch (err) {
+    next(err);
+  }
+};
+
+export const searchJobs = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const jobs = await searchJobsService({
+      title:
+        typeof req.query.title === "string" ? req.query.title.trim() : undefined,
+      location:
+        typeof req.query.location === "string"
+          ? req.query.location.trim()
+          : undefined,
+      company:
+        typeof req.query.company === "string"
+          ? req.query.company.trim()
+          : undefined,
+      jobType:
+        typeof req.query.jobType === "string"
+          ? (req.query.jobType.trim() as jobType)
+          : undefined,
+    });
+
+    res
+      .status(200)
+      .json(new ApiResponse(200, "jobs fetched successfully", jobs));
+  } catch (err) {
+    next(err);
+  }
+};
+
+export const getMyJobs = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const userId = req.user?.id;
+
+    if (!userId) {
+      throw new ApiError(401, "User not authenticated");
+    }
+
+    const jobs = await getMyJobsService(userId, {
+      title:
+        typeof req.query.title === "string" ? req.query.title.trim() : undefined,
+      location:
+        typeof req.query.location === "string"
+          ? req.query.location.trim()
+          : undefined,
+      company:
+        typeof req.query.company === "string"
+          ? req.query.company.trim()
+          : undefined,
+      jobType:
+        typeof req.query.jobType === "string"
+          ? (req.query.jobType.trim() as jobType)
+          : undefined,
+    });
+
+    res
+      .status(200)
+      .json(new ApiResponse(200, "my jobs fetched successfully", jobs));
   } catch (err) {
     next(err);
   }

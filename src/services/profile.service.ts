@@ -1,7 +1,7 @@
 import prisma from "../configs/prisma";
 import { ApiError } from "../utils/api.error";
 
-export const createProfile = async (data: {
+export const createProfileService = async (data: {
   userId: string;
   fullName: string;
   username: string;
@@ -9,6 +9,7 @@ export const createProfile = async (data: {
   bio?: string;
   location?: string;
   avatar?: string;
+  resume?: string;
   skills: string[];
   currentCompany?: string;
   currentPosition?: string;
@@ -36,6 +37,7 @@ export const updateProfileServices = async (
     bio?: string;
     location?: string;
     avatar?: string;
+    resume?: string;
     skills?: string[];
     currentCompany?: string;
     currentPosition?: string;
@@ -111,6 +113,7 @@ export const getAllProfilesService = async (
       bio: true,
       location: true,
       avatar: true,
+      resume: true,
       skills: true,
       currentCompany: true,
       currentPosition: true,
@@ -153,6 +156,7 @@ export const getMyProfileService = async (userId: string) => {
       bio: true,
       location: true,
       avatar: true,
+      resume: true,
       skills: true,
       currentCompany: true,
       currentPosition: true,
@@ -189,6 +193,7 @@ export const upsertProfileServices = async (
     bio?: string;
     location?: string;
     avatar?: string;
+    resume?: string;
     skills: string[];
     currentCompany?: string;
     currentPosition?: string;
@@ -250,6 +255,7 @@ type UpdateProfileWithRelationsInput = {
     bio?: string;
     location?: string;
     avatar?: string;
+    resume?: string;
     skills?: string[];
     currentCompany?: string;
     currentPosition?: string;
@@ -447,6 +453,7 @@ export const updateProfileWithRelationsService = async (
       bio: true,
       location: true,
       avatar: true,
+      resume: true,
       skills: true,
       currentCompany: true,
       currentPosition: true,

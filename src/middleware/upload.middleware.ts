@@ -39,3 +39,26 @@ export const uploadResume = createUploader(
   documentMimeTypes,
   10 * 1024 * 1024,
 ).single("resume");
+
+export const uploadProfileAssets = multer({
+  storage: multer.memoryStorage(),
+  limits: {
+    fileSize: 10 * 1024 * 1024,
+  },
+  fileFilter: (_req, file, cb) => {
+    const isAvatar =
+      file.fieldname === "avatar" && imageMimeTypes.has(file.mimetype);
+    const isResume =
+      file.fieldname === "resume" && documentMimeTypes.has(file.mimetype);
+
+    if (!isAvatar && !isResume) {
+      cb(new ApiError(400, "Invalid file type"));
+      return;
+    }
+
+    cb(null, true);
+  },
+}).fields([
+  { name: "avatar", maxCount: 1 },
+  { name: "resume", maxCount: 1 },
+]);

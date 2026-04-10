@@ -1,12 +1,12 @@
 import { NextFunction, Request, Response, Router } from "express";
 import {
-  createProfileController,
   deleteProfile,
   getAllProfiles,
   getMyProfile,
   updateProfileWithRelations,
   updateProfile,
   upsertProfile,
+  createProfile,
 } from "../controller/profile.controller";
 import {
   authenticationMiddleware,
@@ -18,7 +18,7 @@ import {
   updateProfileWithRelationsValidator,
   updatePRofileValidator,
 } from "../validators/profile.validator";
-import { uploadProfileImage } from "../middleware/upload.middleware";
+import { uploadProfileAssets } from "../middleware/upload.middleware";
 
 const profileRouter = Router();
 
@@ -44,16 +44,16 @@ const normalizeProfileBody = (
 profileRouter.post(
   "/create",
   authenticationMiddleware,
-  uploadProfileImage,
+  uploadProfileAssets,
   normalizeProfileBody,
   validate(createProfileValidator),
-  createProfileController,
+  createProfile,
 );
 
 profileRouter.patch(
   "/update",
   authenticationMiddleware,
-  uploadProfileImage,
+  uploadProfileAssets,
   normalizeProfileBody,
   validate(updatePRofileValidator),
   updateProfile,

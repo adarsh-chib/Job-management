@@ -158,6 +158,9 @@ export const userDeleteServices = async (data: {
 
 export const getUsersDataServices = async () => {
   const user = await prisma.user.findMany({
+    where : {
+      role : "candidate"
+    },
     select: {
       id: true,
       fullName: true,
