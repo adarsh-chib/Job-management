@@ -9,8 +9,15 @@ import profileRouter from "./routes/profile.routes";
 import educationRouter from "./routes/education.routes";
 import jobRouter from "./routes/job.routes";
 import experienceRouter from "./routes/experience.route";
+import cors from "cors";
 
 const app = Express();
+app.use(
+  cors({
+    origin: true,
+    credentials: true,
+  }),
+);
 app.use(Express.json());
 app.use(Express.urlencoded({ extended: true }));
 
@@ -21,8 +28,8 @@ const PORT = 3000;
 app.use("/api", userRouter);
 app.use("/api/profile", profileRouter);
 app.use("/api/education", educationRouter);
-app.use("/api/experience",experienceRouter);
-app.use("/api/job",jobRouter);
+app.use("/api/experience", experienceRouter);
+app.use("/api/job", jobRouter);
 
 app.get("/", (req, res) => {
   res.status(200).json({
@@ -32,20 +39,18 @@ app.get("/", (req, res) => {
 });
 
 app.use(errorHandler);
-
 const startServer = async () => {
   try {
     await prisma.$connect();
-    logger.info("Database has been connected successfully")
+    logger.info("Database has been connected successfully");
 
     app.listen(PORT, () => {
       logger.info(`server is running on http://localhost:${PORT}`);
     });
-  }
-  catch (err) {
+  } catch (err) {
     logger.error("Database connection failed", err);
     process.exit(1);
   }
-}
+};
 
 startServer();

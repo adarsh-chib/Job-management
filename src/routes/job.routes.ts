@@ -3,18 +3,57 @@ import {
   authenticationMiddleware,
   authorizationMiddleware,
 } from "../middleware/auth.middleware";
-import { jobsCreate } from "../controller/jobs.controller";
-import { validate } from "../middleware/validation.middleware";
-import { createJobValidator } from "../validators/jobs.validator";
+import {
+  deleteJob,
+  getAllJobs,
+  getJobById,
+  jobsCreate,
+  updateJob,
+} from "../controller/jobs.controller";
+import {
+  validate,
+  validateParams,
+} from "../middleware/validation.middleware";
+import {
+  createJobValidator,
+  jobIdParamValidator,
+  updateJobValidator,
+} from "../validators/jobs.validator";
 
 const jobRouter = Express.Router();
+
+jobRouter.get("/all", authenticationMiddleware, getAllJobs);
+
+jobRouter.get(
+  "/:jobId",
+  authenticationMiddleware,
+  validateParams(jobIdParamValidator),
+  getJobById,
+);
 
 jobRouter.post(
   "/create",
   authenticationMiddleware,
-  authorizationMiddleware("admin"),
+  authorizationMiddleware("admin", "manager"),
   validate(createJobValidator),
   jobsCreate,
+);
+
+jobRouter.patch(
+  "/update/:jobId",
+  authenticationMiddleware,
+  authorizationMiddleware("admin", "manager"),
+  validateParams(jobIdParamValidator),
+  validate(updateJobValidator),
+  updateJob,
+);
+
+jobRouter.delete(
+  "/delete/:jobId",
+  authenticationMiddleware,
+  authorizationMiddleware("admin", "manager"),
+  validateParams(jobIdParamValidator),
+  deleteJob,
 );
 
 export default jobRouter;

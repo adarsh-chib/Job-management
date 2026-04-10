@@ -4,6 +4,7 @@ import {
   deleteProfile,
   getAllProfiles,
   getMyProfile,
+  updateProfileWithRelations,
   updateProfile,
   upsertProfile,
 } from "../controller/profile.controller";
@@ -14,6 +15,7 @@ import {
 import { validate } from "../middleware/validation.middleware";
 import {
   createProfileValidator,
+  updateProfileWithRelationsValidator,
   updatePRofileValidator,
 } from "../validators/profile.validator";
 import { uploadProfileImage } from "../middleware/upload.middleware";
@@ -73,6 +75,13 @@ profileRouter.put(
   authenticationMiddleware,
   validate(updatePRofileValidator),
   upsertProfile,
+);
+
+profileRouter.put(
+  "/update-with-relations",
+  authenticationMiddleware,
+  validate(updateProfileWithRelationsValidator),
+  updateProfileWithRelations,
 );
 
 export default profileRouter;

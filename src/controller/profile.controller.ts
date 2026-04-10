@@ -4,6 +4,7 @@ import {
   deleteProfileServices,
   getAllProfilesService,
   getMyProfileService,
+  updateProfileWithRelationsService,
   updateProfileServices,
   upsertProfileServices,
 } from "../services/profile.service";
@@ -175,5 +176,34 @@ export const upsertProfile = async (
     res.status(200).json(new ApiResponse(200, "ok", upsertProfile));
   } catch (err) {
     next(err);
+  }
+};
+
+export const updateProfileWithRelations = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const userId = req.user?.id;
+
+    if (!userId) {
+      throw new ApiError(401, "User not authenticated");
+    }
+
+    const updatedProfile = await updateProfileWithRelationsService(
+      userId,
+      req.body,
+    );
+
+    return res.status(200).json(
+      new ApiResponse(
+        200,
+        "Profile, education and experience updated successfully",
+        updatedProfile,
+      ),
+    );
+  } catch (error) {
+    next(error);
   }
 };
