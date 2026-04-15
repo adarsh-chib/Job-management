@@ -27,10 +27,12 @@ export const jobsCreate = async (
       title,
       description,
       skillsRequired,
-      experienceRequired,
+      experienceMin,
+      experienceMax,
       company,
+      salaryMin,
+      salaryMax,
       location,
-      salary,
       jobType,
     } = req.body;
 
@@ -38,10 +40,12 @@ export const jobsCreate = async (
       title,
       description,
       skillsRequired,
-      experienceRequired,
+      experienceMin,
+      experienceMax,
       company,
       location,
-      salary,
+      salaryMin,
+      salaryMax,
       jobType,
       userId,
     );
@@ -96,7 +100,11 @@ export const updateJob = async (
       throw new ApiError(401, "User not authenticated");
     }
 
-    const updatedJob = await updateJobService(req.params.jobId, userId, req.body);
+    const updatedJob = await updateJobService(
+      req.params.jobId,
+      userId,
+      req.body,
+    );
 
     res
       .status(200)
@@ -134,22 +142,31 @@ export const searchJobs = async (
   next: NextFunction,
 ) => {
   try {
-    const jobs = await searchJobsService({
-      title:
-        typeof req.query.title === "string" ? req.query.title.trim() : undefined,
-      location:
-        typeof req.query.location === "string"
-          ? req.query.location.trim()
-          : undefined,
-      company:
-        typeof req.query.company === "string"
-          ? req.query.company.trim()
-          : undefined,
-      jobType:
-        typeof req.query.jobType === "string"
-          ? (req.query.jobType.trim() as jobType)
-          : undefined,
-    });
+    const page = Number(req.query.page) || 1;
+    const limit = Number(req.query.limit) || 10;
+
+    const jobs = await searchJobsService(
+      {
+        title:
+          typeof req.query.title === "string"
+            ? req.query.title.trim()
+            : undefined,
+        location:
+          typeof req.query.location === "string"
+            ? req.query.location.trim()
+            : undefined,
+        company:
+          typeof req.query.company === "string"
+            ? req.query.company.trim()
+            : undefined,
+        jobType:
+          typeof req.query.jobType === "string"
+            ? (req.query.jobType.trim() as jobType)
+            : undefined,
+      },
+      page,
+      limit,
+    );
 
     res
       .status(200)
@@ -167,26 +184,36 @@ export const getMyJobs = async (
   try {
     const userId = req.user?.id;
 
+    const page = Number(req.query.page) || 1;
+    const limit = Number(req.query.limit) || 10;
+
     if (!userId) {
       throw new ApiError(401, "User not authenticated");
     }
 
-    const jobs = await getMyJobsService(userId, {
-      title:
-        typeof req.query.title === "string" ? req.query.title.trim() : undefined,
-      location:
-        typeof req.query.location === "string"
-          ? req.query.location.trim()
-          : undefined,
-      company:
-        typeof req.query.company === "string"
-          ? req.query.company.trim()
-          : undefined,
-      jobType:
-        typeof req.query.jobType === "string"
-          ? (req.query.jobType.trim() as jobType)
-          : undefined,
-    });
+    const jobs = await getMyJobsService(
+      userId,
+      {
+        title:
+          typeof req.query.title === "string"
+            ? req.query.title.trim()
+            : undefined,
+        location:
+          typeof req.query.location === "string"
+            ? req.query.location.trim()
+            : undefined,
+        company:
+          typeof req.query.company === "string"
+            ? req.query.company.trim()
+            : undefined,
+        jobType:
+          typeof req.query.jobType === "string"
+            ? (req.query.jobType.trim() as jobType)
+            : undefined,
+      },
+      page,
+      limit,
+    );
 
     res
       .status(200)
