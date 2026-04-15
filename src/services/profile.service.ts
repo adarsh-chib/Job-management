@@ -16,7 +16,6 @@ export const createProfileService = async (data: {
   isOpenToWork: boolean;
   companyName?: string;
   designation?: string;
-  postedByType?: "company" | "freelancer";
   githubUrl?: string;
   portfolioUrl?: string;
   linkedinUrl?: string;
@@ -44,7 +43,6 @@ export const updateProfileServices = async (
     isOpenToWork?: boolean;
     companyName?: string;
     designation?: string;
-    postedByType?: "company" | "freelancer";
     githubUrl?: string;
     portfolioUrl?: string;
     linkedinUrl?: string;
@@ -119,7 +117,6 @@ export const getAllProfilesService = async (
       currentPosition: true,
       companyName: true,
       designation: true,
-      postedByType: true,
       educations: {
         select: {
           id: true,
@@ -163,7 +160,6 @@ export const getMyProfileService = async (userId: string) => {
       isOpenToWork: true,
       companyName: true,
       designation: true,
-      postedByType: true,
       educations: {
         select: {
           id: true,
@@ -200,7 +196,6 @@ export const upsertProfileServices = async (
     isOpenToWork: boolean;
     companyName?: string;
     designation?: string;
-    postedByType?: "company" | "freelancer";
     githubUrl?: string;
     portfolioUrl?: string;
     linkedinUrl?: string;
@@ -262,7 +257,6 @@ type UpdateProfileWithRelationsInput = {
     isOpenToWork?: boolean;
     companyName?: string;
     designation?: string;
-    postedByType?: "company" | "freelancer";
     githubUrl?: string;
     portfolioUrl?: string;
     linkedinUrl?: string;
@@ -460,7 +454,6 @@ export const updateProfileWithRelationsService = async (
       isOpenToWork: true,
       companyName: true,
       designation: true,
-      postedByType: true,
       githubUrl: true,
       portfolioUrl: true,
       linkedinUrl: true,

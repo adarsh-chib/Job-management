@@ -6,85 +6,17 @@ export const jobCreateService = async (
   title: string,
   description: string,
   skillsRequired: string[],
-  experienceRequired: string,
+  experienceMin: number | undefined,
+  experienceMax: number | undefined,
   company: string | undefined,
   location: string | undefined,
-  salary: string | undefined,
-  jobType: jobType,
+  salaryMin: number | undefined,
+  salaryMax: number | undefined,
+  jobType: jobType | undefined,
   createdById: string,
 ) => {
-  const existingJob = await prisma.job.findFirst({
-    where: {
-      createdById,
-    },
-    select: {
-      id: true,
-    },
-  });
-
-  if (existingJob) {
-    throw new ApiError(
-      400,
-      "You already have an active job. Delete the existing job before creating a new one.",
-    );
-  }
-
-  const postingUser = await prisma.user.findUnique({
-    where: {
-      id: createdById,
-    },
-    select: {
-      id: true,
-      fullName: true,
-      role: true,
-      Profile: {
-        select: {
-          companyName: true,
-          designation: true,
-          postedByType: true,
-        },
-      },
-    },
-  });
-
-  if (!postingUser) {
-    throw new ApiError(404, "user not found");
-  }
-
-  if (!["admin", "manager"].includes(postingUser.role)) {
-    throw new ApiError(403, "only admin or manager can create jobs");
-  }
-
-  if (!postingUser.Profile) {
-    throw new ApiError(
-      400,
-      "Create your profile first with company or freelancer details before posting a job.",
-    );
-  }
-
-  const { companyName, postedByType } = postingUser.Profile;
-
-  if (!postedByType) {
-    throw new ApiError(
-      400,
-      "Set postedByType in your profile as company or freelancer before posting a job.",
-    );
-  }
-
-  if (postedByType === "company" && !companyName) {
-    throw new ApiError(
-      400,
-      "Company name is required in profile for company job posting.",
-    );
-  }
-
-  const resolvedCompany =
-    postedByType === "company"
-      ? companyName
-      : company || companyName || `${postingUser.fullName} (Freelancer)`;
-
-  if (!resolvedCompany) {
-    throw new ApiError(400, "Company name could not be resolved for this job.");
+  if (!company) {
+    throw new ApiError(400, "company is required");
   }
 
   return await prisma.job.create({
@@ -92,10 +24,12 @@ export const jobCreateService = async (
       title,
       description,
       skillsRequired,
-      experienceRequired,
-      company: resolvedCompany,
+      experienceMin,
+      experienceMax,
+      company,
       location,
-      salary,
+      salaryMin,
+      salaryMax,
       jobType,
       createdById,
     },
@@ -106,10 +40,12 @@ type UpdateJobInput = {
   title?: string;
   description?: string;
   skillsRequired?: string[];
-  experienceRequired?: string;
+  experienceMin?: number;
+  experienceMax?: number;
   company?: string;
+  salaryMin?: number;
+  salaryMax?: number;
   location?: string;
-  salary?: string;
   jobType?: jobType;
 };
 
@@ -176,15 +112,21 @@ export const deleteJobService = async (jobId: string, requesterId: string) => {
   });
 };
 
-
 type SearchJobsFilters = {
   title?: string;
   location?: string;
   company?: string;
   jobType?: jobType;
+  skillsRequired?: string[];
 };
 
-export const searchJobsService = async (filters: SearchJobsFilters) => {
+export const searchJobsService = async (
+  filters: SearchJobsFilters,
+  page: number,
+  limit: number,
+) => {
+  const skip = (page - 1) * limit;
+
   return prisma.job.findMany({
     where: {
       ...(filters.title && {
@@ -199,17 +141,27 @@ export const searchJobsService = async (filters: SearchJobsFilters) => {
       ...(filters.jobType && {
         jobType: filters.jobType,
       }),
+      ...(filters.skillsRequired?.length && {
+        skillsRequired: {
+          hasSome: filters.skillsRequired,
+        },
+      }),
     },
     orderBy: {
       createdAt: "desc",
     },
+    skip,
+    take: limit,
   });
 };
 
 export const getMyJobsService = async (
   userId: string,
   filters: SearchJobsFilters,
+  page: number,
+  limit: number,
 ) => {
+  const skip = (page - 1) * limit;
   return prisma.job.findMany({
     where: {
       createdById: userId,
@@ -229,6 +181,7 @@ export const getMyJobsService = async (
     orderBy: {
       createdAt: "desc",
     },
+    skip,
+    take: limit,
   });
 };
-

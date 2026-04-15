@@ -12,7 +12,6 @@ export const createProfileValidator = z.object({
   isOpenToWork: z.boolean().default(false),
   companyName: z.string().trim().optional(),
   designation: z.string().trim().optional(),
-  postedByType: z.enum(["company", "freelancer"]).optional(),
   githubUrl: z.string().url().optional(),
   portfolioUrl: z.string().url().optional(),
   linkedinUrl: z.string().url().optional(),
