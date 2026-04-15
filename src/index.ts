@@ -10,6 +10,7 @@ import educationRouter from "./routes/education.routes";
 import jobRouter from "./routes/job.routes";
 import experienceRouter from "./routes/experience.route";
 import cors from "cors";
+import jobApplicationRouter from "./routes/jobApplication.routes";
 
 const app = Express();
 app.use(
@@ -30,6 +31,7 @@ app.use("/api/profile", profileRouter);
 app.use("/api/education", educationRouter);
 app.use("/api/experience", experienceRouter);
 app.use("/api/job", jobRouter);
+app.use("api/jobApplication", jobApplicationRouter);
 
 app.get("/", (req, res) => {
   res.status(200).json({

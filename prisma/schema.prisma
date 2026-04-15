@@ -143,6 +143,8 @@ model JobApplication {
   id          String @id @default(auto()) @map("_id") @db.ObjectId
   jobId       String @db.ObjectId
   candidateId String @db.ObjectId
+  resume      String
+  coverLetter String
 
   status ApplicationStatus @default(applied)
 

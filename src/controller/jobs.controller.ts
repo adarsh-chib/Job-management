@@ -163,6 +163,13 @@ export const searchJobs = async (
           typeof req.query.jobType === "string"
             ? (req.query.jobType.trim() as jobType)
             : undefined,
+        skillsRequired:
+          typeof req.query.skillsRequired === "string"
+            ? req.query.skillsRequired
+                .split(",")
+                .map((skill) => skill.trim())
+                .filter(Boolean)
+            : undefined,
       },
       page,
       limit,
