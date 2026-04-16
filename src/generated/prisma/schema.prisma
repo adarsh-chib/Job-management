@@ -1,0 +1,161 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "mongodb"
+
+  url = env("DATABASE_URL")
+}
+
+enum Role {
+  admin
+  manager
+  candidate
+}
+
+model User {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  fullName  String
+  email     String   @unique
+  password  String
+  role      Role     @default(candidate)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  Profile         Profile?
+  job             Job[]
+  jobApplications JobApplication[]
+}
+
+model Profile {
+  id String @id @default(auto()) @map("_id") @db.ObjectId
+
+  userId String @unique @db.ObjectId
+  user   User   @relation(fields: [userId], references: [id])
+
+  fullName String
+  username String  @unique
+  headline String?
+  bio      String?
+  location String?
+  avatar   String?
+  resume   String?
+
+  skills String[]
+
+  currentCompany  String?
+  currentPosition String?
+  isOpenToWork    Boolean @default(false)
+  companyName     String?
+  designation     String?
+
+  githubUrl    String?
+  portfolioUrl String?
+  linkedinUrl  String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  educations  Education[]
+  experiences Experience[]
+
+  @@index([fullName])
+  @@index([createdAt])
+}
+
+model Education {
+  id String @id @default(auto()) @map("_id") @db.ObjectId
+
+  institutionName String
+  qualification   String
+  fieldOfStudy    String?
+  grade           String?
+  startDate       DateTime
+  endDate         DateTime?
+  description     String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  profile   Profile? @relation(fields: [profileId], references: [id])
+  profileId String?  @db.ObjectId
+}
+
+model Experience {
+  id String @id @default(auto()) @map("_id") @db.ObjectId
+
+  companyName    String
+  jobTitle       String
+  employmentType String?
+  location       String?
+  locationType   String?
+  startDate      DateTime
+  endDate        DateTime?
+  isCurrent      Boolean   @default(false)
+  description    String?
+  skills         String[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  profile   Profile? @relation(fields: [profileId], references: [id])
+  profileId String?  @db.ObjectId
+}
+
+enum jobType {
+  remote
+  onsite
+  hybrid
+}
+
+model Job {
+  id String @id @default(auto()) @map("_id") @db.ObjectId
+
+  title       String
+  description String
+
+  skillsRequired String[] @default([])
+
+  experienceMin Int? // NEW
+  experienceMax Int? // NEW
+
+  company   String
+  salaryMin Int? // NEW
+  salaryMax Int? // NEW
+
+  location String?
+
+  jobType jobType?
+
+  createdAt DateTime @default(now()) // NEW
+
+  createdById String @db.ObjectId
+
+  applications JobApplication[]
+  user         User?            @relation(fields: [userId], references: [id])
+  userId       String?          @db.ObjectId
+}
+
+enum ApplicationStatus {
+  applied
+  shortlisted
+  rejected
+}
+
+model JobApplication {
+  id          String @id @default(auto()) @map("_id") @db.ObjectId
+  jobId       String @db.ObjectId
+  candidateId String @db.ObjectId
+  resume      String
+  coverLetter String
+
+  status ApplicationStatus @default(applied)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  job       Job      @relation(fields: [jobId], references: [id])
+  candidate User     @relation(fields: [candidateId], references: [id])
+
+  @@unique([jobId, candidateId])
+}

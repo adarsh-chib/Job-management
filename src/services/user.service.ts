@@ -3,7 +3,7 @@ import bcrypt from "bcrypt";
 import { ApiError } from "../utils/api.error";
 import { generateAccessToken } from "../utils/generateaccesstoken";
 import { generateRefreshToken } from "../utils/generaterefreshtoken";
-import { Role } from "../../generated/prisma/client";
+import { Role } from "../generated/prisma/client";
 
 export const userRegisterService = async (data: {
   fullName: string;
