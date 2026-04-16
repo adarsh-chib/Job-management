@@ -24,7 +24,9 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  Profile Profile?
+  Profile        Profile?
+  job            Job[]
+  jobApplications JobApplication[]
 }
 
 model Profile {
@@ -57,7 +59,7 @@ model Profile {
   updatedAt DateTime @updatedAt
 
   educations Education[]
-  experince  Experince[]
+  experiences Experience[]
 
   @@index([fullName])
   @@index([createdAt])
@@ -80,7 +82,7 @@ model Education {
   profileId String?  @db.ObjectId
 }
 
-model Experince {
+model Experience {
   id String @id @default(auto()) @map("_id") @db.ObjectId
 
   companyName    String
@@ -131,6 +133,8 @@ model Job {
   createdById String @db.ObjectId
 
   applications JobApplication[]
+  user         User?            @relation(fields: [userId], references: [id])
+  userId       String?          @db.ObjectId
 }
 
 enum ApplicationStatus {
@@ -151,6 +155,7 @@ model JobApplication {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   job       Job      @relation(fields: [jobId], references: [id])
+  candidate   User      @relation(fields: [candidateId], references: [id])
 
   @@unique([jobId, candidateId])
 }
