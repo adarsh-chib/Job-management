@@ -24,7 +24,7 @@ export const createExperienceServices = async (
 ) => {
   return await Promise.all(
     data.map((experience: CreateExperienceInput) =>
-      prisma.experince.create({
+      prisma.experience.create({
         data: experience,
       }),
     ),
@@ -59,7 +59,7 @@ export const updateExperienceServices = async (
     throw new ApiError(404, "profile not found");
   }
 
-  const existingExperience = await prisma.experince.findFirst({
+  const existingExperience = await prisma.experience.findFirst({
     where: {
       id: experienceId,
       profileId: profile.id,
@@ -70,7 +70,7 @@ export const updateExperienceServices = async (
     throw new ApiError(404, "experience id does not exist");
   }
 
-  return await prisma.experince.update({
+  return await prisma.experience.update({
     where: {
       id: experienceId,
     },
@@ -92,7 +92,7 @@ export const deleteExperienceServices = async (
     throw new ApiError(404, "profile not found");
   }
 
-  const existingExperience = await prisma.experince.findFirst({
+  const existingExperience = await prisma.experience.findFirst({
     where: {
       id: experienceId,
       profileId: profile.id,
@@ -103,7 +103,7 @@ export const deleteExperienceServices = async (
     throw new ApiError(404, "experience id does not exist");
   }
 
-  return await prisma.experince.delete({
+  return await prisma.experience.delete({
     where: {
       id: experienceId,
     },

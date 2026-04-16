@@ -69,7 +69,7 @@ export const deleteProfileServices = async (userId: string) => {
     prisma.education.deleteMany({
       where: { profileId: profile.id },
     }),
-    prisma.experince.deleteMany({
+    prisma.experience.deleteMany({
       where: { profileId: profile.id },
     }),
     prisma.profile.delete({
@@ -83,7 +83,7 @@ export const getAllProfilesService = async (
   limit: number,
   search?: string,
 ) => {
-  const getProfile = await prisma.profile.findMany({
+  const profiles = await prisma.profile.findMany({
     where: search
       ? {
           OR: [
@@ -101,7 +101,7 @@ export const getAllProfilesService = async (
     skip,
     take: limit,
     orderBy: {
-      createdAt: "desc", // means new profile will come at top
+      createdAt: "desc",
     },
     select: {
       id: true,
@@ -111,70 +111,66 @@ export const getAllProfilesService = async (
       bio: true,
       location: true,
       avatar: true,
-      resume: true,
       skills: true,
       currentCompany: true,
       currentPosition: true,
-      companyName: true,
-      designation: true,
-      educations: {
-        select: {
-          id: true,
-          institutionName: true,
-          qualification: true,
-          fieldOfStudy: true,
-          grade: true,
-        },
-      },
-      experince: {
-        select: {
-          companyName: true,
-          jobTitle: true,
-          employmentType: true,
-          location: true,
-          locationType: true,
-          skills: true,
-        },
-      },
     },
   });
 
-  return getProfile;
+  return profiles;
+};
+
+const fullProfileSelect = {
+  id: true,
+  userId: true,
+  fullName: true,
+  username: true,
+  headline: true,
+  bio: true,
+  location: true,
+  avatar: true,
+  resume: true,
+  skills: true,
+  currentCompany: true,
+  currentPosition: true,
+  isOpenToWork: true,
+  companyName: true,
+  designation: true,
+  githubUrl: true,
+  portfolioUrl: true,
+  linkedinUrl: true,
+  educations: {
+    orderBy: {
+      startDate: "desc" as const,
+    },
+  },
+  experiences: {
+    orderBy: {
+      startDate: "desc" as const,
+    },
+  },
 };
 
 export const getMyProfileService = async (userId: string) => {
   const profile = await prisma.profile.findUnique({
     where: { userId },
-    select: {
-      id: true,
-      fullName: true,
-      username: true,
-      headline: true,
-      bio: true,
-      location: true,
-      avatar: true,
-      resume: true,
-      skills: true,
-      currentCompany: true,
-      currentPosition: true,
-      isOpenToWork: true,
-      companyName: true,
-      designation: true,
-      educations: {
-        select: {
-          id: true,
-          institutionName: true,
-          qualification: true,
-          fieldOfStudy: true,
-          startDate: true,
-          endDate: true,
-          grade: true,
-        },
-      },
-    },
+    select: fullProfileSelect,
   });
   if (!profile) {
     throw new ApiError(404, "profile not found");
+  }
+
+  return profile;
+};
+
+export const getProfileByUsernameService = async (username: string) => {
+  const profile = await prisma.profile.findUnique({
+    where: { username },
+    select: fullProfileSelect,
+  });
+
+  if (!profile) {
+    throw new ApiError(404, "Profile not found");
   }
 
   return profile;
@@ -289,13 +285,14 @@ export const updateProfileWithRelationsService = async (
   }
 
   await prisma.$transaction(async (tx) => {
-    if (Object.keys(profile).length > 0) {
+    if (profile && Object.keys(profile).length > 0) {
       await tx.profile.update({
         where: { userId },
         data: profile,
       });
     }
 
+    // Process Education
     for (const educationItem of education) {
       const educationData = {
         institutionName: educationItem.institutionName,
@@ -308,39 +305,21 @@ export const updateProfileWithRelationsService = async (
       };
 
       if (educationItem.id) {
-        const existingEducation = await tx.education.findFirst({
-          where: {
-            id: educationItem.id,
-            profileId: existingProfile.id,
-          },
-          select: { id: true },
-        });
-
-        if (!existingEducation) {
-          throw new ApiError(
-            404,
-            `education not found for id ${educationItem.id}`,
-          );
-        }
-
         await tx.education.update({
-          where: { id: educationItem.id },
+          where: { id: educationItem.id, profileId: existingProfile.id },
           data: educationData,
         });
       } else {
         await tx.education.create({
           data: {
             ...educationData,
-            profile: {
-              connect: {
-                id: existingProfile.id,
-              },
-            },
+            profileId: existingProfile.id,
           },
         });
       }
     }
 
+    // Process Experience
     for (const experienceItem of experience) {
       const experienceData = {
         companyName: experienceItem.companyName,
@@ -356,54 +335,22 @@ export const updateProfileWithRelationsService = async (
       };
 
       if (experienceItem.id) {
-        const existingExperience = await tx.experince.findFirst({
-          where: {
-            id: experienceItem.id,
-            profileId: existingProfile.id,
-          },
-          select: { id: true },
-        });
-
-        if (!existingExperience) {
-          throw new ApiError(
-            404,
-            `experience not found for id ${experienceItem.id}`,
-          );
-        }
-
-        await tx.experince.update({
-          where: { id: experienceItem.id },
+        await tx.experience.update({
+          where: { id: experienceItem.id, profileId: existingProfile.id },
           data: experienceData,
         });
       } else {
-        await tx.experince.create({
+        await tx.experience.create({
           data: {
             ...experienceData,
-            profile: {
-              connect: {
-                id: existingProfile.id,
-              },
-            },
+            profileId: existingProfile.id,
           },
         });
       }
     }
 
+    // Process Deletions
     if (deletedEducationIds.length > 0) {
-      const educationCount = await tx.education.count({
-        where: {
-          id: { in: deletedEducationIds },
-          profileId: existingProfile.id,
-        },
-      });
-
-      if (educationCount !== deletedEducationIds.length) {
-        throw new ApiError(
-          404,
-          "one or more education ids were not found for this profile",
-        );
-      }
-
       await tx.education.deleteMany({
         where: {
           id: { in: deletedEducationIds },
@@ -413,21 +360,7 @@ export const updateProfileWithRelationsService = async (
     }
 
     if (deletedExperienceIds.length > 0) {
-      const experienceCount = await tx.experince.count({
-        where: {
-          id: { in: deletedExperienceIds },
-          profileId: existingProfile.id,
-        },
-      });
-
-      if (experienceCount !== deletedExperienceIds.length) {
-        throw new ApiError(
-          404,
-          "one or more experience ids were not found for this profile",
-        );
-      }
-
-      await tx.experince.deleteMany({
+      await tx.experience.deleteMany({
         where: {
           id: { in: deletedExperienceIds },
           profileId: existingProfile.id,
@@ -438,35 +371,6 @@ export const updateProfileWithRelationsService = async (
 
   return prisma.profile.findUnique({
     where: { userId },
-    select: {
-      id: true,
-      userId: true,
-      fullName: true,
-      username: true,
-      headline: true,
-      bio: true,
-      location: true,
-      avatar: true,
-      resume: true,
-      skills: true,
-      currentCompany: true,
-      currentPosition: true,
-      isOpenToWork: true,
-      companyName: true,
-      designation: true,
-      githubUrl: true,
-      portfolioUrl: true,
-      linkedinUrl: true,
-      educations: {
-        orderBy: {
-          createdAt: "desc",
-        },
-      },
-      experince: {
-        orderBy: {
-          createdAt: "desc",
-        },
-      },
-    },
+    select: fullProfileSelect,
   });
 };

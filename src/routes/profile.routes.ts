@@ -3,6 +3,7 @@ import {
   deleteProfile,
   getAllProfiles,
   getMyProfile,
+  getProfileByUsername,
   updateProfileWithRelations,
   updateProfile,
   upsertProfile,
@@ -69,6 +70,12 @@ profileRouter.get(
 );
 
 profileRouter.get("/profile", authenticationMiddleware, getMyProfile);
+
+profileRouter.get(
+  "/:username",
+  authenticationMiddleware,
+  getProfileByUsername,
+);
 
 profileRouter.put(
   "/upsert",

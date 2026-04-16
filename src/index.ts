@@ -31,7 +31,7 @@ app.use("/api/profile", profileRouter);
 app.use("/api/education", educationRouter);
 app.use("/api/experience", experienceRouter);
 app.use("/api/job", jobRouter);
-app.use("api/jobApplication", jobApplicationRouter);
+app.use("/api/jobApplication", jobApplicationRouter);
 
 app.get("/", (req, res) => {
   res.status(200).json({

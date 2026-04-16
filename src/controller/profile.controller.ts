@@ -3,6 +3,7 @@ import {
   deleteProfileServices,
   getAllProfilesService,
   getMyProfileService,
+  getProfileByUsernameService,
   updateProfileWithRelationsService,
   updateProfileServices,
   upsertProfileServices,
@@ -195,6 +196,23 @@ export const getMyProfile = async (
   }
 };
 
+export const getProfileByUsername = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const { username } = req.params;
+    const profile = await getProfileByUsernameService(username);
+
+    res
+      .status(200)
+      .json(new ApiResponse(200, "Profile fetched successfully", profile));
+  } catch (err) {
+    next(err);
+  }
+};
+
 export const upsertProfile = async (
   req: Request,
   res: Response,
@@ -238,7 +256,7 @@ export const updateProfileWithRelations = async (
       .json(
         new ApiResponse(
           200,
-          "Profile, education and experience updated successfully",
+          "Profile updated successfully",
           updatedProfile,
         ),
       );
