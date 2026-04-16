@@ -202,7 +202,7 @@ export const getProfileByUsername = async (
   next: NextFunction,
 ) => {
   try {
-    const { username } = req.params;
+    const username = req.params.username as string;
     const profile = await getProfileByUsernameService(username);
 
     res
