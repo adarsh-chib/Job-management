@@ -16,5 +16,10 @@
     "forceConsistentCasingInFileNames": true,
     "noImplicitAny": false,
     "skipLibCheck": true
-  }
+  },
+  "exclude": [
+    "node_modules",
+    "generated",
+    "build"
+  ]
 }

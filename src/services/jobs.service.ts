@@ -1,4 +1,4 @@
-import { jobType } from "../../generated/prisma";
+import { jobType } from "../generated/prisma";
 import prisma from "../configs/prisma";
 import { ApiError } from "../utils/api.error";
 

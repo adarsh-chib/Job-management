@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from "express";
-import { jobType } from "../../generated/prisma";
+import { jobType } from "../generated/prisma";
 import { ApiError } from "../utils/api.error";
 import {
   deleteJobService,
