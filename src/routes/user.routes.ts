@@ -15,6 +15,17 @@ import {
 
 const userRouter = Express.Router();
 
+/**
+ * @swagger
+ * /api/userlogin:
+ *   post:
+ *     summary: Login user
+ *     tags: [Auth]
+ *     responses:
+ *       200:
+ *         description: Login successful
+ */
+
 userRouter.post("/create", validate(signupValidator), userRegister);
 userRouter.post("/userlogin", validate(signinValidator), userLogin);
 userRouter.patch("/reset-password", authenticationMiddleware, resetPassword);

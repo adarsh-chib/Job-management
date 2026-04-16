@@ -11,6 +11,8 @@ import jobRouter from "./routes/job.routes";
 import experienceRouter from "./routes/experience.route";
 import cors from "cors";
 import jobApplicationRouter from "./routes/jobApplication.routes";
+import swaggerUi from "swagger-ui-express";
+import swaggerSpec from "./configs/swagger";
 
 const app = Express();
 app.use(
@@ -32,6 +34,7 @@ app.use("/api/education", educationRouter);
 app.use("/api/experience", experienceRouter);
 app.use("/api/job", jobRouter);
 app.use("/api/jobApplication", jobApplicationRouter);
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 app.get("/", (req, res) => {
   res.status(200).json({
