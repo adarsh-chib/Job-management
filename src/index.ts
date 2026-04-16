@@ -24,7 +24,7 @@ app.use(Express.urlencoded({ extended: true }));
 
 app.use(requestLogger);
 
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
 
 app.use("/api", userRouter);
 app.use("/api/profile", profileRouter);

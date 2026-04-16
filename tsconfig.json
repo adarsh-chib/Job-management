@@ -7,7 +7,7 @@
     ],
     "module": "commonjs",
     "moduleResolution": "node",
-    "rootDir": ".",
+    "rootDir": "src",
     "resolveJsonModule": true,
     "allowJs": true,
     "outDir": "build",
