@@ -224,7 +224,7 @@ const config = {
       "value": "prisma-client-js"
     },
     "output": {
-      "value": "D:\\personal project\\job management\\src\\generated\\prisma",
+      "value": "D:\\intern projects\\Job-management\\src\\generated\\prisma",
       "fromEnvVar": null
     },
     "config": {
@@ -238,12 +238,11 @@ const config = {
       }
     ],
     "previewFeatures": [],
-    "sourceFilePath": "D:\\personal project\\job management\\prisma\\schema.prisma",
+    "sourceFilePath": "D:\\intern projects\\Job-management\\prisma\\schema.prisma",
     "isCustomOutput": true
   },
   "relativeEnvPaths": {
-    "rootEnvPath": null,
-    "schemaEnvPath": "../../../.env"
+    "rootEnvPath": null
   },
   "relativePath": "../../../prisma",
   "clientVersion": "6.19.3",
