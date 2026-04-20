@@ -13,20 +13,57 @@ import cors from "cors";
 import jobApplicationRouter from "./routes/jobApplication.routes";
 import swaggerUi from "swagger-ui-express";
 import swaggerSpec from "./configs/swagger";
+import { createServer } from "http";
+import { Server } from "socket.io";
 
 const app = Express();
+const server = createServer(app);
+
+const io = new Server(server, {
+  cors: {
+    origin: "*",
+  },
+});
+app.use(Express.json());
+app.use(Express.urlencoded({ extended: true }));
+
 app.use(
   cors({
-    origin: true,
+    origin: "*",
     credentials: true,
   }),
 );
-app.use(Express.json());
-app.use(Express.urlencoded({ extended: true }));
 
 app.use(requestLogger);
 
 const PORT = process.env.PORT || 3000;
+
+const onlineUsers = new Map();
+
+io.on("connection", (socket) => {
+  console.log("User connected:", socket.id);
+
+  // user joins
+  socket.on("join", (userId) => {
+    onlineUsers.set(userId, socket.id);
+  });
+
+  // send message
+  socket.on("sendMessage", ({ senderId, receiverId, message }) => {
+    const receiverSocketId = onlineUsers.get(receiverId);
+
+    if (receiverSocketId) {
+      io.to(receiverSocketId).emit("receiveMessage", {
+        senderId,
+        message,
+      });
+    }
+  });
+
+  socket.on("disconnect", () => {
+    console.log("User disconnected:", socket.id);
+  });
+});
 
 app.use("/api", userRouter);
 app.use("/api/profile", profileRouter);
@@ -49,7 +86,7 @@ const startServer = async () => {
     await prisma.$connect();
     logger.info("Database has been connected successfully");
 
-    app.listen(PORT, () => {
+    server.listen(PORT, () => {
       logger.info(`server is running on http://localhost:${PORT}`);
     });
   } catch (err) {
