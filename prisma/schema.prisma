@@ -159,3 +159,12 @@ model JobApplication {
 
   @@unique([jobId, candidateId])
 }
+
+
+model Message {
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+  senderId   String   @db.ObjectId
+  receiverId String   @db.ObjectId
+  content    String
+  createdAt  DateTime @default(now())
+}
