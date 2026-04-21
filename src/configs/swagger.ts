@@ -13,6 +13,20 @@ const options = {
                 url: "https://job-management-e4z4.onrender.com",
             },
         ],
+        components: {
+            securitySchemes: {
+                bearerAuth: {
+                    type: "http",
+                    scheme: "bearer",
+                    bearerFormat: "JWT",
+                },
+            },
+        },
+        security: [
+            {
+                bearerAuth: [],
+            },
+        ],
     },
     apis: ["./src/routes/*.ts"], // path to your route files
 };
