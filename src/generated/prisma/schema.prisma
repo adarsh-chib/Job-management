@@ -24,6 +24,9 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  messagesSent     Message[] @relation("SentMessages")
+  messagesReceived Message[] @relation("ReceivedMessages")
+
   Profile         Profile?
   job             Job[]
   jobApplications JobApplication[]
@@ -158,4 +161,21 @@ model JobApplication {
   candidate User     @relation(fields: [candidateId], references: [id])
 
   @@unique([jobId, candidateId])
+}
+
+model Message {
+  id      String @id @default(auto()) @map("_id") @db.ObjectId
+  content String
+
+  senderId String @db.ObjectId
+  sender   User   @relation("SentMessages", fields: [senderId], references: [id])
+
+  receiverId String @db.ObjectId
+  receiver   User   @relation("ReceivedMessages", fields: [receiverId], references: [id])
+
+  isRead    Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([senderId, receiverId])
 }
