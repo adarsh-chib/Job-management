@@ -206,6 +206,16 @@ exports.Prisma.JobApplicationScalarFieldEnum = {
   updatedAt: 'updatedAt'
 };
 
+exports.Prisma.MessageScalarFieldEnum = {
+  id: 'id',
+  content: 'content',
+  senderId: 'senderId',
+  receiverId: 'receiverId',
+  isRead: 'isRead',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -239,7 +249,8 @@ exports.Prisma.ModelName = {
   Education: 'Education',
   Experience: 'Experience',
   Job: 'Job',
-  JobApplication: 'JobApplication'
+  JobApplication: 'JobApplication',
+  Message: 'Message'
 };
 
 /**
