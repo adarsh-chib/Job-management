@@ -12,6 +12,9 @@ node_modules/
 
 # Prisma generated client
 /generated/
+/src/generated/
+*.tmp
+*.node.tmp*
 
 # Logs and debug files
 /logs/
