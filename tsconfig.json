@@ -15,7 +15,9 @@
     "ignoreDeprecations": "6.0",
     "forceConsistentCasingInFileNames": true,
     "noImplicitAny": false,
-    "skipLibCheck": true
+    "skipLibCheck": true,
+    "types": ["node"]
+
   },
   "exclude": [
     "node_modules",
