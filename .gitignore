@@ -29,3 +29,8 @@ full_errors.txt
 Thumbs.db
 .vscode/
 .idea/
+
+
+#frontend
+
+/message-frontend/
