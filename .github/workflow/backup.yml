@@ -1,8 +1,7 @@
 name: Database Backup to Google Drive
 
 on:
-  schedule:
-    - cron: '0 0 * * *' # Runs every night at midnight
+  push:
   workflow_dispatch: # Manual trigger button
 
 jobs:
