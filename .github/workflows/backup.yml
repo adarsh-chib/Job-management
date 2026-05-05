@@ -2,6 +2,8 @@ name: Database Backup to Google Drive
 
 on:
   push:
+    branches:
+      - main
   workflow_dispatch: # Manual trigger button
 
 jobs:
