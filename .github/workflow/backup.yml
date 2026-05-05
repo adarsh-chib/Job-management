@@ -1,0 +1,31 @@
+name: Database Backup to Google Drive
+
+on:
+  schedule:
+    - cron: '0 0 * * *' # Runs every night at midnight
+  workflow_dispatch: # Manual trigger button
+
+jobs:
+  backup:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install MongoDB Tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y mongodb-database-tools
+
+      - name: Create Backup File
+        run: |
+          # Uses the exact secret name you saved in GitHub
+          mongodump --uri="${{ secrets.DB_CONNECTION_STRING }}" --archive=db_backup.gz --gzip
+
+      - name: Upload to Google Drive
+        uses: adityak74/google-drive-upload-gitaction@main
+        with:
+          credentials: ${{ secrets.GDRIVE_JSON }}
+          filename: db_backup.gz
+          folderId: ${{ secrets.GDRIVE_FOLDER_ID }}
+          overwrite: false
